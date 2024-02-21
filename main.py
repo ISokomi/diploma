@@ -2,6 +2,45 @@ import asyncio, math
 from itertools import product
 
 
+class Trivial:
+    def __init__(self, n):
+        self.n = n
+        self.queue = asyncio.Queue(1)
+
+    async def Alice(self, alpha):
+        for i in range(1, self.n + 1):
+            x = alpha[i]
+            print("Alice send:   ", x)
+            await self.queue.put(x)
+            await asyncio.sleep(0)
+
+        index = ""
+        for i in range(self.n):
+            bit_of_index = await self.queue.get()
+            print("Alice receive index:", bit_of_index)
+            index += bit_of_index
+
+        print()
+        print("Alice thinks that index is:", int(index, 2) + 1)
+
+    async def Bob(self, beta):
+        for i in range(1, self.n + 1):
+            a = await self.queue.get()
+            print("Bob receive:  ", a)
+
+            if (beta[i] != a):
+                index = i
+
+        print()
+        index = bin(index - 1)[2:].zfill(self.n)
+        for i in range(self.n):
+            print("Bob send index:     ", index[i])
+            await self.queue.put(index[i])
+            await asyncio.sleep(0)
+
+        print("Bob thinks that index is:  ", int(index, 2) + 1)
+
+
 class Simple:
     def __init__(self, n):
         self.n = n
@@ -157,13 +196,18 @@ async def launch():
         if (diff == 1):
             break
 
-    protocol = Simple(n)
     print("Alice:", *alpha)
-    print("Bob:  ", *beta, "\n")
+    print("Bob:  ", *beta)
 
-    f1 = loop.create_task(protocol.Alice(['a'] + alpha))
-    f2 = loop.create_task(protocol.Bob(['b'] + beta))
-    await asyncio.wait([f1, f2])
+    protocols = {"Simple": Simple, "Trivial": Trivial}
+
+    for protocol in protocols:
+        print("\n\nProtocol ", protocol, ":\n", sep='')
+        protocol = protocols[protocol](n)
+
+        f1 = loop.create_task(protocol.Alice(['a'] + alpha))
+        f2 = loop.create_task(protocol.Bob(['b'] + beta))
+        await asyncio.wait([f1, f2])
 
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
