@@ -28,7 +28,7 @@ class Trivial:
             a = await self.queue.get()
             print("Bob receive:  ", a)
 
-            if (beta[i] != a):
+            if beta[i] != a:
                 index = i
 
         print()
@@ -59,13 +59,13 @@ class Simple:
         for i in range(2, self.n, 2):
             b = await self.queue.get()
             print("Alice receive:", b)
-            if (b == 1):
+            if b == 1:
                 last_1_b = i
 
-            if (lock_A == 1):
+            if lock_A == 1:
                 x = 0
             else:
-                if (alpha[i] == b):
+                if alpha[i] == b:
                     x = alpha[i + 1]
                 else:
                     lock_A = 1
@@ -76,10 +76,10 @@ class Simple:
             await self.queue.put(x)
             await asyncio.sleep(0)
 
-        if (self.n % 2 == 0):
+        if self.n % 2 == 0:
             b = await self.queue.get()
             print("Alice receive:", b, "\n")
-            if (b == 1):
+            if b == 1:
                 last_1_b = self.n
 
         print("Alice send lock_A:   ", lock_A)
@@ -103,13 +103,13 @@ class Simple:
         for i in range(1, self.n, 2):
             a = await self.queue.get()
             print("Bob receive:  ", a)
-            if (a == 1):
+            if a == 1:
                 last_1_a = i
 
-            if (lock_B == 1):
+            if lock_B == 1:
                 x = 0
             else:
-                if (beta[i] == a):
+                if beta[i] == a:
                     x = beta[i + 1]
                 else:
                     lock_B = 1
@@ -120,10 +120,10 @@ class Simple:
             await self.queue.put(x)
             await asyncio.sleep(0)
 
-        if (self.n % 2 == 1):
+        if self.n % 2 == 1:
             a = await self.queue.get()
             print("Bob receive:  ", a, "\n")
-            if (a == 1):
+            if a == 1:
                 last_1_a = self.n
 
         lock_A = await self.queue.get()
@@ -141,30 +141,32 @@ class Simple:
 
 
 def error_detect(s):
-    if ((len(s) & (len(s) - 1)) or len(s) < 2 or not all(c in '01' for c in s)):
+    if (len(s) & (len(s) - 1)) or len(s) < 2 or not all(c in "01" for c in s):
         return True
     else:
-        if (all(c == '0' for c in s)):
+        if all(c == "0" for c in s):
             print("Your function is identically equal to 0")
             return True
 
-        if (all(c == '1' for c in s)):
+        if all(c == "1" for c in s):
             print("Your function is identically equal to 1")
             return True
 
         return False
 
+
 def get_input():
     s = input("\nEnter a column of function values: ")
-    while(error_detect(s)):
+    while error_detect(s):
         s = input("Enter exactly 2^n zeros and ones:  ")
 
     return s
 
+
 async def launch():
     values = [int(c) for c in get_input()]
     n = int(math.log(len(values), 2))
-    table = [*([*map(lambda input: [*input], product({0, 1}, repeat = n))])]
+    table = [*([*map(lambda input: [*input], product({0, 1}, repeat=n))])]
 
     print("\n Truth table:\n")
     for i in range(len(table)):
@@ -172,8 +174,8 @@ async def launch():
 
     B0 = []
     B1 = []
-    for i in range (len(table)):
-        if (values[i] == 0):
+    for i in range(len(table)):
+        if values[i] == 0:
             B0.append(table[i])
         else:
             B1.append(table[i])
@@ -186,14 +188,14 @@ async def launch():
         print(*line)
     print()
 
-    for i in range (len(B0)):
-        for j in range (len(B1)):
+    for i in range(len(B0)):
+        for j in range(len(B1)):
             diff = sum([abs(B0[i][k] - B1[j][k]) for k in range(n)])
-            if (diff == 1):
+            if diff == 1:
                 alpha = B1[j]
                 beta = B0[i]
                 break
-        if (diff == 1):
+        if diff == 1:
             break
 
     print("Alice:", *alpha)
@@ -202,12 +204,13 @@ async def launch():
     protocols = {"Simple": Simple, "Trivial": Trivial}
 
     for protocol in protocols:
-        print("\n\nProtocol ", protocol, ":\n", sep='')
+        print("\n\nProtocol ", protocol, ":\n", sep="")
         protocol = protocols[protocol](n)
 
-        f1 = loop.create_task(protocol.Alice(['a'] + alpha))
-        f2 = loop.create_task(protocol.Bob(['b'] + beta))
+        f1 = loop.create_task(protocol.Alice(["a"] + alpha))
+        f2 = loop.create_task(protocol.Bob(["b"] + beta))
         await asyncio.wait([f1, f2])
+
 
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
