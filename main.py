@@ -186,9 +186,9 @@ class Ham3:
                 return i + 1
 
     async def Alice(self, alpha):
-        X0 = alpha[1:self.s + 1]
-        X1 = alpha[self.s + 1:self.s + 2**(self.r - 1) + 1]
-        X2 = alpha[self.s + 2**(self.r - 1) + 1:]
+        X0 = alpha[1 : self.s + 1]
+        X1 = alpha[self.s + 1 : self.s + 2**(self.r - 1) + 1]
+        X2 = alpha[self.s + 2**(self.r - 1) + 1 :]
 
         print("Sending X0:")
         for i in range(self.s):
@@ -277,9 +277,9 @@ class Ham3:
         return res
 
     async def Bob(self, beta):
-        Y0 = beta[1:self.s + 1]
-        Y1 = beta[self.s + 1:self.s + 2**(self.r - 1) + 1]
-        Y2 = beta[self.s + 2**(self.r - 1) + 1:]
+        Y0 = beta[1 : self.s + 1]
+        Y1 = beta[self.s + 1 : self.s + 2**(self.r - 1) + 1]
+        Y2 = beta[self.s + 2**(self.r - 1) + 1 :]
 
         index = 0
         for i in range(self.s):
@@ -446,17 +446,17 @@ async def launch():
         f2 = loop.create_task(protocol.Bob(["b"] + beta))
         await asyncio.wait([f1, f2])
 
-    #testing
+    # testing
     test_mode = 0
     if test_mode:
         flag = 0
         for i in range(len(table)):
-            for j in range(i + 1, len(table)):
+            for j in range(len(table)):
                 diff = 0
                 index = 0
                 for k in range(n):
                     di = abs(table[i][k] - table[j][k])
-                    if (di == 1):
+                    if di == 1:
                         index = k + 1
                     diff += di
                 if diff == 1:
@@ -472,7 +472,7 @@ async def launch():
 
                         f1_res = f1.result()
                         f2_res = f2.result()
-                        if (f1_res != f2_res or f1_res != index):
+                        if f1_res != f2_res or f1_res != index:
                             print(alpha, "\n", beta)
                             print(f1_res, f2_res, index)
                             flag = 1
