@@ -1,8 +1,8 @@
-import asyncio, math
-from itertools import product
+import asyncio, math           # Библиотека для асинхронного программирования и библиотека с математическими функциями
+from itertools import product  # Функция для получения декартового произведения множества (0, 1) для таблицы истинности
 
 
-class Trivial:
+class Trivial: # Класс, реализующий протокол Trivial
     def __init__(self, n):
         self.n = n
         self.queue = asyncio.Queue(1)
@@ -44,7 +44,7 @@ class Trivial:
         return index
 
 
-class Simple:
+class Simple: # Класс, реализующий протокол Simple
     def __init__(self, n):
         self.n = n
         self.queue = asyncio.Queue(1)
@@ -145,7 +145,7 @@ class Simple:
         return index
 
 
-class Ham3:
+class Ham3: # Класс, реализующий протокол Ham3
     def __init__(self, n):
         self.n = n
         self.queue = asyncio.Queue(1)
@@ -155,9 +155,13 @@ class Ham3:
 
         self.C_n = []
 
-        table1 = [*([*map(lambda input: [*input], product({0, 1}, repeat=2**(self.r-1)))])]
-        table2 = [*([*map(lambda input: [*input], product({0, 1}, repeat=self.r-1))])]
-        table3 = [*([*map(lambda input: [*input], product({0, 1}, repeat=2**(self.r - 1) - (self.r - 1)))])]
+        # Получение таблиц истинности
+        table1 = [*([*map(lambda input: [*input], product({0, 1},
+                                     repeat=2**(self.r-1)))])]
+        table2 = [*([*map(lambda input: [*input], product({0, 1},
+                                     repeat=self.r-1))])]
+        table3 = [*([*map(lambda input: [*input], product({0, 1},
+                                     repeat=2**(self.r - 1) - (self.r - 1)))])]
         self.label = [''.join(map(str, t)) for t in table3]
 
         for i in range(len(table1)):
@@ -375,7 +379,7 @@ class Ham3:
         return res
 
 
-def error_detect(s):
+def error_detect(s): # Функция для проверки корректности входных данных
     if (len(s) & (len(s) - 1)) or len(s) < 2 or not all(c in "01" for c in s):
         return True
     else:
@@ -390,7 +394,7 @@ def error_detect(s):
         return False
 
 
-def get_input():
+def get_input(): # Функция, проверяющая входные данные
     s = input("\nEnter a column of function values: ")
     while error_detect(s):
         s = input("Enter exactly 2^n zeros and ones:  ")
@@ -398,7 +402,7 @@ def get_input():
     return s
 
 
-async def launch():
+async def launch(): # Функция, запускающая протоколы
     values = [int(c) for c in get_input()]
     n = int(math.log(len(values), 2))
     table = [*([*map(lambda input: [*input], product({0, 1}, repeat=n))])]
@@ -436,7 +440,7 @@ async def launch():
     print("Alice:", *alpha)
     print("Bob:  ", *beta)
 
-    protocols = {"Simple": Simple, "Trivial": Trivial, "Ham3": Ham3}
+    protocols = {"Trivial" : Trivial, "Simple" : Simple, "Ham3" : Ham3}
 
     for protocol in protocols:
         print("\n\nProtocol ", protocol, ":\n", sep="")
@@ -446,7 +450,7 @@ async def launch():
         f2 = loop.create_task(protocol.Bob(["b"] + beta))
         await asyncio.wait([f1, f2])
 
-    # testing
+    # Тестирование
     test_mode = 0
     if test_mode:
         flag = 0
@@ -480,7 +484,7 @@ async def launch():
             print("\nAll tests have been passed!")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # Запуск главной функции launch()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(launch())
